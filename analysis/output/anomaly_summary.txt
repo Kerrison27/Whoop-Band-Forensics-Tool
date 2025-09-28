@@ -1,0 +1,7 @@
+elevated_hr_events: 23
+low_hrv_events: 18
+high_strain_events: 21
+poor_sleep_events: 15
+short_sleep_events: 20
+sleep_debt_events: 3
+days_with_any_anomaly: 72

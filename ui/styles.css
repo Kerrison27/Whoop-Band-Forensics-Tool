@@ -1,0 +1,266 @@
+/* =========================================================
+   Wearable Forensics — UI theme (Japanese soft neutrals)
+   Place this file at: ui/styles.css
+   ========================================================= */
+
+/* ---------- Color system (tweak to taste) ---------- */
+:root{
+  /* Neutrals */
+  --bg:            #FAF9F6;   /* milky white background */
+  --surface:       #FFFFFF;   /* pure surface */
+  --porcelain:     #F5F7F6;   /* white porcelain */
+  --base-sand:     #E8E2D9;   /* light sand border */
+  --plum-grey:     #E6E5EB;   /* white plum grey */
+
+  /* Text */
+  --ink:           #2B2F33;   /* primary text */
+  --muted-ink:     #5B6166;   /* secondary text */
+
+  /* Accents (soft & calm) */
+  --accent:        #6C83A6;   /* desaturated blue (links/active) */
+  --accent-weak:   #E3EAF3;   /* pale accent fill */
+
+  /* Status */
+  --good:          #5A8C6E;   /* sage */
+  --good-weak:     #E4EFE8;
+  --warn:          #C76E5C;   /* terracotta */
+  --warn-weak:     #F6E7E4;
+  --info:          #6C83A6;
+  --info-weak:     #E7EEF7;
+
+  /* Effects */
+  --radius:        14px;
+  --shadow:        0 8px 20px rgba(16,24,40,.06);
+}
+
+/* =========================================================
+   Layout / frame
+   ========================================================= */
+html, body, [data-testid="stAppViewContainer"]{
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Center the whole app and keep comfortable padding */
+.block-container{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+@media (min-width:1400px){
+  .block-container{ max-width: 1200px; }
+}
+
+/* Respect safe-areas (iOS/macOS notches) */
+.main .block-container{
+  padding-left: calc(1rem + env(safe-area-inset-left));
+  padding-right: calc(1rem + env(safe-area-inset-right));
+}
+
+/* =========================================================
+   Headings & text
+   ========================================================= */
+.app-title{
+  font-size: clamp(1.6rem, 2.2vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: .3px;
+  margin: .25rem 0 0.25rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.app-subtitle{
+  font-size: 0.98rem;
+  color: var(--muted-ink);
+  margin-bottom: 1rem;
+}
+
+/* =========================================================
+   Tabs — wrap/scroll nicely & active styling
+   ========================================================= */
+.stTabs [data-baseweb="tab-list"]{
+  display: flex; gap: .25rem;
+  border-bottom: 1px solid var(--base-sand);
+  flex-wrap: wrap;                 /* wrap on small widths */
+  overflow-x: auto;                /* or horizontal scroll */
+  scrollbar-width: none;
+}
+.stTabs [data-baseweb="tab-list"]::-webkit-scrollbar{ display: none; }
+
+.stTabs [data-baseweb="tab"]{
+  padding: 8px 12px;
+  background: var(--porcelain);
+  border: 1px solid var(--base-sand);
+  border-bottom: none;
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  color: var(--muted-ink);
+}
+
+.stTabs [aria-selected="true"]{
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--accent);
+  position: relative;
+}
+.stTabs [aria-selected="true"]::after{
+  content:"";
+  position:absolute; left:0; right:0; bottom:-1px; height:1px;
+  background: var(--surface);      /* seam with content card */
+}
+
+/* =========================================================
+   Cards, badges, captions
+   ========================================================= */
+.card{
+  background: var(--surface);
+  border: 1px solid var(--base-sand);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.1rem 1rem 1rem;
+  margin: 1rem 0;
+}
+
+.badge{
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .15rem .5rem;
+  font-size: .72rem;
+  border-radius: 999px;
+  background: var(--accent-weak);
+  color: var(--accent);
+  border: 1px solid var(--plum-grey);
+}
+
+.caption, .help, .stCaption, .st-emotion-cache-1wbqy5l p{
+  color: var(--muted-ink) !important;
+}
+
+/* =========================================================
+   Plotly & DataFrames
+   ========================================================= */
+/* Plotly container surface to match cards */
+.stPlotlyChart .plot-container,
+.js-plotly-plot, .plotly, .svg-container{
+  background: var(--surface) !important;
+}
+
+/* Keep DataFrame within the card & full width */
+div[data-testid="stDataFrame"]{ width: 100% !important; }
+div[data-testid="stDataFrame"] > div{
+  border: 1px solid var(--base-sand);
+  border-radius: calc(var(--radius) - 2px);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+/* Table header soft tint */
+div[data-testid="stDataFrame"] thead tr th{
+  background: var(--porcelain) !important;
+  color: var(--muted-ink) !important;
+  border-bottom: 1px solid var(--base-sand) !important;
+}
+
+/* =========================================================
+   Metrics (highlight boxes at top of dashboard)
+   ========================================================= */
+[data-testid="stMetric"]{
+  background: var(--surface);
+  border: 1px solid var(--base-sand);
+  border-radius: var(--radius);
+  padding: .75rem .9rem;
+  box-shadow: var(--shadow);
+}
+[data-testid="stMetric"] [data-testid="stMetricValue"]{
+  color: var(--ink);
+}
+[data-testid="stMetric"] [data-testid="stMetricDelta"]{
+  font-weight: 600;
+}
+
+/* =========================================================
+   Buttons & inputs
+   ========================================================= */
+.stButton>button{
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: .55rem .9rem;
+  transition: filter .15s ease, transform .02s ease;
+  box-shadow: var(--shadow);
+}
+.stButton>button:hover{ filter: brightness(1.05); }
+.stButton>button:active{ transform: translateY(1px); }
+
+.stDownloadButton>button{
+  background: var(--porcelain);
+  color: var(--ink);
+  border: 1px solid var(--base-sand);
+}
+
+/* Inputs */
+.stTextInput>div>div>input,
+.stNumberInput input{
+  background: var(--surface);
+  border: 1px solid var(--base-sand);
+  border-radius: 10px;
+  color: var(--ink);
+}
+
+/* File uploader box */
+[data-testid="stFileUploader"] div[role="button"]{
+  background: var(--porcelain);
+  border-radius: 12px;
+  border: 1px dashed var(--plum-grey);
+}
+
+/* =========================================================
+   Alerts (success / warning / error)
+   ========================================================= */
+.stAlert{
+  border-radius: 12px;
+  border: 1px solid var(--base-sand);
+}
+.stAlert[data-baseweb="alert"]{
+  box-shadow: var(--shadow);
+}
+
+/* Success/info/warn palettes */
+.stAlert:has([data-icon="check"])        { background: var(--good-weak);  border-color: var(--good);  }
+.stAlert:has([data-icon="info"])         { background: var(--info-weak);  border-color: var(--info);  }
+.stAlert:has([data-icon="warning-sign"]) { background: var(--warn-weak);  border-color: var(--warn);  }
+
+/* =========================================================
+   Links
+   ========================================================= */
+a, .stMarkdown a{
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed transparent;
+}
+a:hover, .stMarkdown a:hover{
+  border-bottom-color: var(--accent);
+}
+
+/* =========================================================
+   Small utilities
+   ========================================================= */
+hr{ border: none; border-top:1px solid var(--base-sand); margin: 1rem 0; }
+
+/* Tighten expander cards a bit */
+.st-expander{
+  border: 1px solid var(--base-sand);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* Make checkboxes line up nicely inside DataFrames */
+.stCheckbox{ line-height: 1.1; }
+
+/* Keep long case names from blowing layout */
+.sidebar .stText{
+  word-break: break-word;
+}
