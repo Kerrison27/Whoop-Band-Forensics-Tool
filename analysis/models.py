@@ -28,10 +28,6 @@ BASE_COLS = [
 
 
 def _prepare_features(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Build a consistent feature table (sorted by date) and
-    add 7-day rolling means for stability.
-    """
     if "date" not in df.columns:
         raise KeyError("Expected a 'date' column in the DataFrame.")
 
@@ -51,11 +47,6 @@ def _prepare_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _feature_matrix_for_iso(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Features for Isolation Forest (unsupervised):
-    use everything except raw resting_hr to avoid double counting,
-    but include its rolling mean.
-    """
     feats = [
         # raw features (except resting_hr)
         "hrv_ms", "day_strain", "asleep_min", "sleep_efficiency_pct", "sleep_debt_min",

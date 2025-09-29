@@ -7,12 +7,6 @@ import numpy as np
 from .pipeline import _sha256_file, _to_numeric
 
 def load_whoop_json(pathlike):
-    """
-    Accepts a Whoop API JSON export (list of records or dict with 'records').
-    Returns (DataFrame, sha256).
-    Supports common fields: date, resting_hr, hrv_ms, respiratory_rate,
-    spo2_pct, sleep_efficiency_pct, asleep_min, day_strain, skin_temp_c, steps, cadence_spm.
-    """
     p = Path(pathlike)
     sha = _sha256_file(p)
     data = json.loads(p.read_text(encoding="utf-8"))

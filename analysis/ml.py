@@ -20,7 +20,7 @@ except Exception:
 # Feature configuration
 # ----------------------------
 FEATURE_COLS: List[str] = [
-    # Include whatever you actually have; missing ones are ignored.
+
     "resting_hr",
     "hrv_ms",
     "sleep_efficiency_pct",
@@ -40,10 +40,6 @@ FEATURE_COLS: List[str] = [
 # Robust scaling (median/MAD)
 # ----------------------------
 def _fit_robust_scaler(df: pd.DataFrame, cols: List[str]) -> Dict[str, Any]:
-    """
-    Build a scaler dict: {'median': {col: m}, 'mad': {col: s}}
-    Using median and 1.4826 * MAD (≈ robust std) per column.
-    """
     med: Dict[str, float] = {}
     mad: Dict[str, float] = {}
     for c in cols:
@@ -59,11 +55,6 @@ def _fit_robust_scaler(df: pd.DataFrame, cols: List[str]) -> Dict[str, Any]:
 
 
 def _transform_robust(df: pd.DataFrame, cols: List[str], scaler: Dict[str, Any]) -> np.ndarray:
-    """
-    Apply robust z-transform: z = (x - median) / MAD.
-    Missing columns become 0 (neutral) for the model.
-    Returns array [n_samples, n_features].
-    """
     out = []
     n = len(df)
     for c in cols:
@@ -80,9 +71,6 @@ def _transform_robust(df: pd.DataFrame, cols: List[str], scaler: Dict[str, Any])
 
 
 def _top_contributors(row: pd.Series, scaler: Dict[str, Any], cols: List[str], k: int = 3) -> str:
-    """
-    Return a short string listing the top-|z| contributors for a row.
-    """
     contribs = []
     for c in cols:
         if c not in row:
@@ -107,10 +95,6 @@ def add_robust_bands(
     cols: List[str] | None = None,
     window: int = 30
 ) -> pd.DataFrame:
-    """
-    Adds columns like: metric_baseline, metric_low_band, metric_high_band
-    using rolling median ± 1.4826 * rolling MAD. Good for overlay bands in charts.
-    """
     if df is None or df.empty:
         return df
     out = df.copy()
@@ -153,17 +137,6 @@ def train_or_load_model(
     min_history: int = 30,
     flag_rate: float = 0.05,
 ) -> Dict[str, Any]:
-    """
-    Fit (or reload) an anomaly model for this case.
-
-    - Uses IsolationForest if sklearn is available; otherwise falls back to
-      a simple robust mean-|z| scoring.
-    - Calibrates a decision threshold so that roughly `flag_rate` fraction
-      of the training history would be flagged (e.g., 0.05 -> top 5%).
-
-    Returns a dict with:
-      {'type', 'feature_cols', 'scaler', 'threshold', 'sk_model'(optional)}
-    """
     case_dir = Path(case_dir)
     (case_dir / "models").mkdir(parents=True, exist_ok=True)
     mpath = _model_path(case_dir)
@@ -241,13 +214,6 @@ def train_or_load_model(
 
 
 def score_with_model(df: pd.DataFrame, model: Dict[str, Any]) -> pd.DataFrame:
-    """
-    Add:
-      - ml_score: raw anomaly score (higher = more anomalous)
-      - ml_flag: True if ml_score >= model['threshold']
-      - ml_top_feats: top contributors by |robust z|
-      - ml_score_pct: 0..100 normalized score for nicer charts
-    """
     if model.get("type") in (None, "none"):
         return df
 

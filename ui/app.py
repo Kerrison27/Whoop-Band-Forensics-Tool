@@ -202,7 +202,7 @@ with tab_upload:
         # Save case outputs (CSV + PNG charts) — includes ML cols
         save_case_outputs(case_dir, analysed)
 
-        st.success("✅ Data saved and analysis completed.")
+        st.success("Data saved and analysis completed.")
         st.dataframe(analysed.tail(10), use_container_width=True)
 
 # Helper to read case daily CSV (for dashboard/outputs)
