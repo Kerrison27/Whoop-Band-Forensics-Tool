@@ -8,7 +8,7 @@ from typing import Dict, Any, List
 import numpy as np
 import pandas as pd
 
-# Optional sklearn import (graceful fallback if missing)
+# Optional sklearn import (fallback if missing)
 try:
     from sklearn.ensemble import IsolationForest
     HAVE_SK = True
