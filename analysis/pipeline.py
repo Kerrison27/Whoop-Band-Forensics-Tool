@@ -10,7 +10,7 @@ from typing import Tuple, List, Dict, Any
 import numpy as np
 import pandas as pd
 
-# Use Matplotlib only for PNG exports (no extra deps)
+# Use Matplotlib only for PNG exports
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -44,7 +44,6 @@ def _pick_first(df: pd.DataFrame, candidates: List[str]) -> str | None:
     return None
 
 def _parse_any_datetime(s: pd.Series) -> pd.Series:
-    """Parse timestamps from strings or epoch seconds/ms. Returns datetime64[ns]."""
     # numeric → try epoch
     if pd.api.types.is_numeric_dtype(s):
         s_num = pd.to_numeric(s, errors="coerce")
@@ -64,10 +63,6 @@ def _parse_any_datetime(s: pd.Series) -> pd.Series:
     return dt
 
 def _coerce_duration_to_min(series: pd.Series) -> pd.Series:
-    """
-    Convert duration-like columns to minutes.
-    Handles strings like HH:MM:SS and numeric hours/seconds/minutes.
-    """
     s = series.copy()
     as_str = s.astype(str)
     if as_str.str.contains(r"^\d{1,2}:\d{2}(:\d{2})?$").all():
@@ -85,16 +80,12 @@ def _coerce_duration_to_min(series: pd.Series) -> pd.Series:
     return s_num
 
 def _coerce_pct(series: pd.Series) -> pd.Series:
-    """Ensure percentages are 0..100. If mostly 0..1, multiply by 100."""
     s = pd.to_numeric(series, errors="coerce").astype(float)
     if s.dropna().between(0, 1.5).mean() > 0.7:  # mostly 0..1
         s = s * 100.0
     return s.clip(lower=0, upper=100)
 
 def _read_csv_bytes_flex(path: Path) -> Tuple[pd.DataFrame, str]:
-    """
-    Read a CSV robustly (UTF-8-sig, cp1252 fallback) and return (df, sha256hex).
-    """
     raw_bytes = Path(path).read_bytes()
     sha = hashlib.sha256(raw_bytes).hexdigest()
     last_err = None
@@ -116,11 +107,6 @@ def _read_csv_bytes_flex(path: Path) -> Tuple[pd.DataFrame, str]:
 # Sleep CSV normalisation
 # ==============================
 def _normalise_sleep(raw: pd.DataFrame) -> pd.DataFrame:
-    """
-    Accept a wide variety of sleep CSV schemas and return daily rows with:
-      date (required), and any of: asleep_min, sleep_efficiency_pct, sleep_debt_min,
-      respiratory_rate, spo2_pct, hrv_ms (all optional)
-    """
     if raw is None or raw.empty:
         raise ValueError("Sleep CSV appears to be empty.")
 
@@ -185,7 +171,7 @@ def _normalise_sleep(raw: pd.DataFrame) -> pd.DataFrame:
             out["hrv_ms"] = pd.to_numeric(df[hrv_col], errors="coerce")
             break
 
-    # group per calendar date (be tolerant if nothing to aggregate)
+    # group per calendar date
     agg = {
         "asleep_min": "sum",
         "sleep_efficiency_pct": "mean",
@@ -200,13 +186,11 @@ def _normalise_sleep(raw: pd.DataFrame) -> pd.DataFrame:
     if agg_dict:
         out = out.groupby("date", as_index=False).agg(agg_dict)
     else:
-        # Keep unique dates only (no strict requirement to have sleep metrics)
         out = out[["date"]].drop_duplicates()
 
     out["date"] = pd.to_datetime(out["date"])
     out = out.sort_values("date").reset_index(drop=True)
 
-    # IMPORTANT CHANGE: do NOT raise even if no asleep/efficiency/debt present.
     # Return date-only (plus any optional vitals) so merge can still proceed.
     return out
 
@@ -220,12 +204,6 @@ def load_sleep_csv(path: str | Path) -> Tuple[pd.DataFrame, str]:
 # Physio CSV normalisation
 # ==============================
 def _normalise_physio(raw: pd.DataFrame) -> pd.DataFrame:
-    """
-    Normalise "daily" physiological CSV to columns:
-      date, resting_hr, hrv_ms (optional), day_strain (optional),
-      respiratory_rate, spo2_pct, skin_temp_c, steps, cadence_spm,
-      stress_score, recovery_score_pct (all optional)
-    """
     if raw is None or raw.empty:
         raise ValueError("Physiological CSV appears to be empty.")
 
@@ -319,9 +297,6 @@ def load_physio_csv(path: str | Path) -> Tuple[pd.DataFrame, str]:
 # Merge + rule-based anomalies
 # ==============================
 def merge_daily(physio_df: pd.DataFrame, sleep_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Outer-join by date, then prefer physio HRV if both present.
-    """
     if (physio_df is None or physio_df.empty) and (sleep_df is None or sleep_df.empty):
         return pd.DataFrame(columns=["date"]).assign(date=pd.to_datetime([]))
 
@@ -351,9 +326,6 @@ def _to_num(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
     return out
 
 def detect_anomalies(df: pd.DataFrame, th: Thresholds) -> pd.DataFrame:
-    """
-    Apply rule-based thresholds and produce boolean flags + any_anomaly.
-    """
     if df is None or df.empty:
         return df
 
@@ -395,9 +367,6 @@ def _plot_line(dates: pd.Series, values: pd.Series, title: str, ylabel: str, sav
     plt.close(fig)
 
 def save_case_outputs(case_dir: Path, analysed: pd.DataFrame) -> None:
-    """
-    Write output/daily.csv and a handful of PNG charts if columns exist.
-    """
     case_dir = Path(case_dir)
     out_dir = case_dir / "output"
     plots_dir = out_dir / "plots"
@@ -440,13 +409,9 @@ def save_case_outputs(case_dir: Path, analysed: pd.DataFrame) -> None:
 
 
 # ==============================
-# (Optional) Robust bands for charts
+# Robust bands for charts
 # ==============================
 def add_robust_bands(df: pd.DataFrame, cols: List[str] | None = None, window: int = 30) -> pd.DataFrame:
-    """
-    Adds columns like: metric_baseline, metric_low_band, metric_high_band
-    using rolling median ± 1.4826*MAD.
-    """
     if df is None or df.empty:
         return df
     out = df.copy()

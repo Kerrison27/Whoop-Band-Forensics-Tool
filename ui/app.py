@@ -10,7 +10,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.io as pio
 
-# Japanese pastels for charts
+# pastels for charts
 COLORWAY = ["#6C93B0", "#A4B59C", "#C5A0B6", "#BFAE88", "#95B8D6", "#BFB7C7"]
 
 pio.templates["jpn_pastel"] = dict(

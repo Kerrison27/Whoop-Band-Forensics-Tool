@@ -1,9 +1,4 @@
-/* =========================================================
-   Wearable Forensics — UI theme (Japanese soft neutrals)
-   Place this file at: ui/styles.css
-   ========================================================= */
 
-/* ---------- Color system (tweak to taste) ---------- */
 :root{
   /* Neutrals */
   --bg:            #FAF9F6;   /* milky white background */

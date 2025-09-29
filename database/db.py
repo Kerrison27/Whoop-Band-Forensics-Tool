@@ -19,7 +19,6 @@ def _connect() -> sqlite3.Connection:
 
 
 def init_db() -> None:
-    """Create tables if they don't exist (fresh schema)."""
     with _connect() as con:
         # --- cases
         con.execute(
@@ -32,7 +31,7 @@ def init_db() -> None:
             """
         )
 
-        # --- investigators (optional, for chain-of-custody)
+        # --- investigators
         con.execute(
             """
             CREATE TABLE IF NOT EXISTS investigators (
@@ -59,7 +58,7 @@ def init_db() -> None:
             """
         )
 
-        # --- dataset import log (optional, for chain-of-custody/audit)
+        # --- dataset import log
         con.execute(
             """
             CREATE TABLE IF NOT EXISTS dataset_import_log (
@@ -75,7 +74,7 @@ def init_db() -> None:
             """
         )
 
-        # --- daily analysis (one row per case_id + date)
+        # --- daily analysis
         con.execute(
             """
             CREATE TABLE IF NOT EXISTS daily (
@@ -169,11 +168,6 @@ def _coerce_bool(v) -> int:
 
 
 def save_daily(case_id: int, rows: List[Dict[str, Any]]) -> None:
-    """
-    Upsert daily rows (unique by case_id + date).
-    Each dict must include at least: 'date' (YYYY-MM-DD).
-    Other keys are optional and will be stored if present.
-    """
     if not rows:
         return
 
@@ -222,9 +216,6 @@ def save_daily(case_id: int, rows: List[Dict[str, Any]]) -> None:
 
 
 def daily_summary(case_id: int) -> Dict[str, int]:
-    """
-    Return counts for each rule-based flag and the number of days with any anomaly.
-    """
     q = """
     SELECT
       SUM(COALESCE(elevated_hr,0))              AS elevated_hr_events,

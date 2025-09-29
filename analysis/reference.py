@@ -9,10 +9,10 @@ import pandas as pd
 
 # --------------------------------------------------------------------------------------
 # Reference ranges & thresholds (based on the table you provided) + lightweight rules.
-# NOTE: We only flag metrics that actually exist in your analysed dataframe.
+
 # --------------------------------------------------------------------------------------
 
-# Human-friendly display names for columns we might see in your daily CSV
+
 DISPLAY = {
     "resting_hr": "Resting Heart Rate (bpm)",
     "hrv_ms": "Heart Rate Variability (ms)",
@@ -304,10 +304,7 @@ def _add_flag(flags: List[Dict[str, Any]], date, metric_key: str, value, rule: s
 
 
 def build_flag_table(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Inspect the analysed daily dataframe and return a tidy table of out-of-range flags
-    based on the provided clinical/forensic guidance. Only flags metrics present in df.
-    """
+
     if df is None or df.empty:
         return pd.DataFrame()
 
@@ -490,10 +487,7 @@ def build_flag_table(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def normal_ranges_table() -> pd.DataFrame:
-    """
-    Returns a dataframe mirroring your provided reference table (metric, normal ranges,
-    normal fluctuations, abnormal thresholds, notes).
-    """
+
     rows = [
         {
             "Metric (Units)": "Resting Heart Rate (bpm)",

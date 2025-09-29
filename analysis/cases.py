@@ -233,13 +233,7 @@ CASE_STUDIES: List[CaseStudy] = [
 # -----------------------
 
 def infer_patterns_from_daily(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Heuristics using the columns produced by your pipeline:
-      - booleans: elevated_hr, low_hrv, high_strain_flag, poor_sleep, short_sleep, sleep_debt_flag
-      - numerics: resting_hr, hrv_ms, day_strain, sleep_efficiency_pct, asleep_min, sleep_debt_min
-      - optional: respiratory_rate, spo2_min, daily_steps, gps_distance_km, device_removed
-    Returns a dict of pattern flags and helpful counts for scoring.
-    """
+
     patterns: Dict[str, Any] = {k: False for k in PATTERN_DESCRIPTIONS.keys()}
 
     cols = set(c.lower() for c in df.columns)
@@ -302,10 +296,7 @@ def infer_patterns_from_daily(df: pd.DataFrame) -> Dict[str, Any]:
 # -----------------------
 
 def _score_case(cs: CaseStudy, patterns: Dict[str, Any]) -> Tuple[int, List[str]]:
-    """
-    Score a case study based on matched patterns and return (score, reasons).
-    Keep this simple and transparent; you can refine anytime.
-    """
+
     reasons: List[str] = []
     score = 0
 
@@ -351,9 +342,7 @@ def _score_case(cs: CaseStudy, patterns: Dict[str, Any]) -> Tuple[int, List[str]
 
 
 def suggest_relevant_cases(df: pd.DataFrame, top_n: int = 4) -> List[Dict[str, Any]]:
-    """
-    Return a ranked list of case studies with 'why' reasons for your UI.
-    """
+
     patterns = infer_patterns_from_daily(df)
     scored: List[Tuple[int, CaseStudy, List[str]]] = []
     for cs in CASE_STUDIES:

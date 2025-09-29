@@ -29,7 +29,6 @@ def _ensure_dirs():
 
 
 def _find_time_col(df: pd.DataFrame) -> str:
-    """Return the column name that holds the cycle start timestamp (tolerant)."""
     df.columns = [c.strip() for c in df.columns]
     if "Cycle start time" in df.columns:
         return "Cycle start time"
